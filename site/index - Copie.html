@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON Data Handling</title>
+    <style>
+/* styles.css */
+
+/* Global Styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: 80%;
+    margin: 0 auto;
+    padding: 20px 0;
+}
+
+/* Navbar Styles */
+.navbar {
+    background-color: #333;
+    color: #fff;
+    padding: 10px 0;
+}
+
+.navbar .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.navbar .logo {
+    font-size: 24px;
+    text-transform: uppercase;
+    color: #fff;
+    text-decoration: none;
+}
+
+.navbar .menu-toggle {
+    display: none;
+}
+
+.navbar .nav-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+
+.navbar .nav-item {
+    margin-left: 20px;
+}
+
+.navbar .nav-link {
+    text-decoration: none;
+    color: #fff;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+/* Home Section */
+.home {
+    text-align: center;
+    padding: 100px 0;
+    background: url('car-image.jpg') no-repeat center center/cover;
+    color: #fff;
+}
+
+.home h1 {
+    font-size: 50px;
+    margin-bottom: 20px;
+}
+
+.home p {
+    font-size: 24px;
+}
+
+/* Form Section */
+.form-section {
+    padding: 50px 0;
+    background-color: #fff;
+    text-align: center;
+}
+
+form {
+    display: inline-block;
+    text-align: left;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+form label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+}
+
+form input {
+    width: calc(100% - 22px);
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+form button {
+    padding: 10px 20px;
+    background-color: #333;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+form button:hover {
+    background-color: #555;
+}
+
+/* Server Control Section */
+#server-control {
+    background-color: #f4f4f4;
+}
+
+/* Footer Styles */
+footer {
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    padding: 10px 0;
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+    .navbar .menu-toggle {
+        display: flex;
+    }
+
+    .navbar .nav-list {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        position: absolute;
+        top: 60px;
+        left: 0;
+        background-color: #333;
+        z-index: 1;
+    }
+
+    .navbar .nav-list.active {
+        display: flex;
+    }
+
+    .navbar .nav-item {
+        margin: 10px 0;
+        text-align: center;
+    }
+
+    form input {
+        width: 100%;
+    }
+}
+
+
+	</style>
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="container">
+                <a href="index.html" class="logo">CarIndustry</a>
+                <div class="menu-toggle" id="mobile-menu">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </div>
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="index.html" class="nav-link">Home</a></li>
+                    <li class="nav-item"><a href="post.html" class="nav-link">POST</a></li>
+                    <li class="nav-item"><a href="view.html" class="nav-link">VIEW</a></li>
+                    <li class="nav-item"><a href="#contact" class="nav-link">Contact</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <section id="post-json" class="form-section">
+        <div class="container">
+            <h2>POST JSON Data</h2>
+            <form id="postForm">
+                <label for="a">a:</label>
+                <input type="text" id="a" name="a" required>
+                <label for="b">b:</label>
+                <input type="text" id="b" name="b" required>
+                <label for="c">c:</label>
+                <input type="text" id="c" name="c" required>
+                <button type="submit">Submit</button>
+            </form>
+            <div id="post-output"></div>
+        </div>
+    </section>
+
+    <section id="get-json" class="form-section">
+        <div class="container">
+            <h2>GET JSON Data</h2>
+            <button id="fetchDataBtn">Fetch Data</button>
+            <div id="get-output"></div>
+        </div>
+    </section>
+
+    <section id="server-control" class="form-section">
+        <div class="container">
+            <h2>Server Control</h2>
+            <button id="startServerBtn">Start Server</button>
+            <button id="stopServerBtn">Stop Server</button>
+            <div id="server-output"></div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            &copy; 2024 CarIndustry. All rights reserved.
+        </div>
+    </footer>
+
+    <script>
+// Mobile menu toggle
+const mobileMenu = document.getElementById('mobile-menu');
+const navList = document.querySelector('.nav-list');
+
+mobileMenu.addEventListener('click', () => {
+    navList.classList.toggle('active');
+});
+
+// POST JSON data
+document.getElementById('postForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    var a = document.getElementById('a').value;
+    var b = document.getElementById('b').value;
+    var c = document.getElementById('c').value;
+
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "http://127.0.0.1:1107/file_post", true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+
+    xhr.onload = function() {
+        if (xhr.status >= 200 && xhr.status < 300) {
+            document.getElementById('post-output').innerText = xhr.responseText;
+        } else {
+            document.getElementById('post-output').innerText = "Request failed";
+        }
+    };
+
+    xhr.onerror = function() {
+        document.getElementById('post-output').innerText = "Request failed";
+    };
+
+    var data = JSON.stringify({ a: parseInt(a), b: parseInt(b), c: c });
+    xhr.send(data);
+});
+
+// GET JSON data
+document.getElementById('fetchDataBtn').addEventListener('click', function() {
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", "http://127.0.0.1:1107/file_get", true);
+
+    xhr.onload = function() {
+        if (xhr.status >= 200 && xhr.status < 300) {
+            var responseData = JSON.parse(xhr.responseText);
+            document.getElementById('get-output').innerHTML = "<pre>" + JSON.stringify(responseData, null, 2) + "</pre>";
+        } else {
+            document.getElementById('get-output').innerText = "Failed to fetch data. Please try again later.";
+        }
+    };
+
+    xhr.onerror = function() {
+        document.getElementById('get-output').innerText = "Failed to connect to the server. Please check your internet connection.";
+    };
+
+    xhr.send();
+});
+
+// Start server
+document.getElementById('startServerBtn').addEventListener('click', function() {
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", "start_server.php", true);
+
+    xhr.onload = function() {
+        if (xhr.status >= 200 && xhr.status < 300) {
+            document.getElementById('server-output').innerText = xhr.responseText;
+        } else {
+            document.getElementById('server-output').innerText = "Failed to start server.";
+        }
+    };
+
+    xhr.onerror = function() {
+        document.getElementById('server-output').innerText = "Request failed";
+    };
+
+    xhr.send();
+});
+
+// Stop server
+document.getElementById('stopServerBtn').addEventListener('click', function() {
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", "stop_server.php", true);
+
+    xhr.onload = function() {
+        if (xhr.status >= 200 && xhr.status < 300) {
+            document.getElementById('server-output').innerText = xhr.responseText;
+        } else {
+            document.getElementById('server-output').innerText = "Failed to stop server.";
+        }
+    };
+
+    xhr.onerror = function() {
+        document.getElementById('server-output').innerText = "Request failed";
+    };
+
+    xhr.send();
+});
+
+</script>
+</body>
+</html>
